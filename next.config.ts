@@ -3,9 +3,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  // Force Turbopack to bundle these packages directly instead of
-  // trying to resolve their sub-path exports (e.g. /react, /next)
-  transpilePackages: ['@vercel/analytics'],
 };
 
 export default withSentryConfig(nextConfig, {
