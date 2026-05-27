@@ -168,17 +168,17 @@ export default function LoginPage() {
           <div className="mt-10 flex justify-center gap-6 text-sm text-amber-900/60">
             <div className="text-center">
               <div className="text-2xl font-black text-amber-950">2.4M+</div>
-              <div>Books</div>
+              <div>Books to explore</div>
             </div>
             <div className="w-px bg-amber-900/20" />
             <div className="text-center">
-              <div className="text-2xl font-black text-amber-950">180K+</div>
-              <div>Readers</div>
+              <div className="text-2xl font-black text-amber-950">100%</div>
+              <div>Free, forever</div>
             </div>
             <div className="w-px bg-amber-900/20" />
             <div className="text-center">
-              <div className="text-2xl font-black text-amber-950">500K+</div>
-              <div>Reviews</div>
+              <div className="text-2xl font-black text-amber-950">0</div>
+              <div>Ads. Ever.</div>
             </div>
           </div>
         </div>

@@ -133,9 +133,9 @@ export default function LandingPage() {
       {/* Stats banner */}
       <div className="mt-4 grid grid-cols-3 gap-4 mb-2">
         {[
-          { value: '2.4M+', label: 'Books Tracked' },
-          { value: '180K+', label: 'Readers' },
-          { value: '500K+', label: 'Reviews Shared' },
+          { value: '2.4M+', label: 'Books to choose from' },
+          { value: '100%', label: 'Free, forever' },
+          { value: '0', label: 'Ads. Ever.' },
         ].map((stat) => (
           <div
             key={stat.label}
