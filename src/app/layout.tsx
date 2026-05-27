@@ -3,6 +3,7 @@ import AppShell from '@/components/AppShell';
 import { AppProvider } from '@/lib/context';
 import { ThemeProvider } from '@/lib/theme';
 import { ChatProvider } from '@/lib/chatContext';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata = {
   title: 'Chedder',
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </ChatProvider>
           </AppProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
