@@ -76,6 +76,17 @@ export default function LeftSidebar() {
         })}
       </div>
 
+      {/* Legal links */}
+      <div className="px-2 pb-1 flex flex-wrap gap-x-3 gap-y-1">
+        <Link href="/privacy" className="text-xs text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400 transition-colors">
+          Privacy Policy
+        </Link>
+        <Link href="/terms" className="text-xs text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400 transition-colors">
+          Terms &amp; Conditions
+        </Link>
+        <span className="text-xs text-gray-300 dark:text-gray-700">© 2026 Chedder</span>
+      </div>
+
       {/* Currently reading */}
       {readingCount > 0 && (
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4">
