@@ -3,7 +3,7 @@ import AppShell from '@/components/AppShell';
 import { AppProvider } from '@/lib/context';
 import { ThemeProvider } from '@/lib/theme';
 import { ChatProvider } from '@/lib/chatContext';
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
   title: 'Chedder',
