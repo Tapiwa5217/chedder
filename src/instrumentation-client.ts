@@ -1,31 +1,20 @@
-// This file configures the initialization of Sentry on the client.
-// The added config here will be used whenever a users loads a page in their browser.
-// https://docs.sentry.io/platforms/javascript/guides/nextjs/
-
-import * as Sentry from "@sentry/nextjs";
+// Client-side Sentry initialisation.
+// Uses @sentry/react directly because @sentry/nextjs cannot be resolved
+// by Turbopack (Next.js 16 default bundler) in the browser context.
+import * as Sentry from "@sentry/react";
 
 Sentry.init({
   dsn: "https://5133b867393ea014c4b1ea08088af196@o4511463300988928.ingest.us.sentry.io/4511463309180928",
 
-  // Add optional integrations for additional features
   integrations: [Sentry.replayIntegration()],
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+  // 20% of transactions sampled — enough signal without burning the free tier
   tracesSampleRate: 0.2,
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
 
-  // Define how likely Replay events are sampled.
-  // This sets the sample rate to be 10%. You may want this to be 100% while
-  // in development and sample at a lower rate in production
+  // Capture replays for 10% of sessions, 100% when an error occurs
   replaysSessionSampleRate: 0.1,
-
-  // Define how likely Replay events are sampled when an error occurs.
   replaysOnErrorSampleRate: 1.0,
 
-  // Enable sending user PII (Personally Identifiable Information)
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
+  enableLogs: true,
   sendDefaultPii: true,
 });
-
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
