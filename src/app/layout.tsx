@@ -1,4 +1,5 @@
 import './globals.css';
+import Script from 'next/script';
 import AppShell from '@/components/AppShell';
 import { AppProvider } from '@/lib/context';
 import { ThemeProvider } from '@/lib/theme';
@@ -25,6 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </ChatProvider>
           </AppProvider>
         </ThemeProvider>
+        {/* Vercel Web Analytics — loads the same script @vercel/analytics injects,
+            but via next/script to avoid Turbopack module resolution issues */}
+        <Script src="/_vercel/insights/script.js" strategy="afterInteractive" />
       </body>
     </html>
   );
