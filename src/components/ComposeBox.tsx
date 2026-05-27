@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/lib/context';
-import { createClient } from '@/lib/supabase/client';
 import { PostType, Book, ShelfType } from '@/lib/types';
 import { searchBooks } from '@/lib/openLibraryApi';
 import Avatar from './Avatar';
@@ -30,7 +29,6 @@ const QUICK_ACTIONS: { Icon: LucideIcon; label: string; type: PostType }[] = [
 
 export default function ComposeBox() {
   const { currentUser, addPost, addToShelf } = useApp();
-  const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [expanded, setExpanded] = useState(false);
@@ -87,16 +85,18 @@ export default function ComposeBox() {
     setUploadingImage(true);
 
     try {
-      const ext = file.name.split('.').pop() ?? 'jpg';
-      const path = `posts/${currentUser.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from('post-images')
-        .upload(path, file, { upsert: false, contentType: file.type });
-      if (uploadError) throw uploadError;
-      const { data } = supabase.storage.from('post-images').getPublicUrl(path);
-      setUploadedImageUrl(data.publicUrl);
-    } catch {
-      // keep preview but no URL; post will use local preview only (won't persist after reload)
+      const body = new FormData();
+      body.append('file', file);
+      body.append('userId', currentUser.id);
+
+      const res = await fetch('/api/upload', { method: 'POST', body });
+      if (!res.ok) throw new Error(await res.text());
+      const { url } = await res.json();
+      setUploadedImageUrl(url);
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      // Clear the preview so a broken blob URL isn't saved to the post
+      setImagePreview('');
     } finally {
       setUploadingImage(false);
     }
