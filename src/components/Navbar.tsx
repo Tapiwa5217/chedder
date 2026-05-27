@@ -14,7 +14,7 @@ type NavLink = { href: string; label: string; match: (p: string) => boolean };
 const NAV_LINKS: NavLink[] = [
   { href: '/feed',    label: 'Feed',    match: (p) => p === '/feed' || p.startsWith('/feed/') },
   { href: '/explore', label: 'Explore', match: (p) => p === '/explore' || p.startsWith('/explore/') || p.startsWith('/books/') || p.startsWith('/recommendations') },
-  { href: '/library', label: 'Library', match: (p) => p === '/library' || p.startsWith('/library/') || p.startsWith('/lists/') },
+  { href: '/library', label: 'Library', match: (p) => p === '/library' || p.startsWith('/library/') || p.startsWith('/collections/') },
   { href: '/groups',  label: 'Groups',  match: (p) => p === '/groups' || p.startsWith('/groups/') },
   { href: '/friends', label: 'Friends', match: (p) => p === '/friends' || p.startsWith('/profile/') },
 ];

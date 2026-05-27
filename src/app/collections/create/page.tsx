@@ -23,7 +23,7 @@ export default function CreateListPage() {
     setError('');
     try {
       const id = await createList(title.trim(), description.trim() || undefined, isPublic);
-      if (id) router.push(`/lists/${id}`);
+      if (id) router.push(`/collections/${id}`);
       else setError('Failed to create collection — make sure the database tables are set up.');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong');

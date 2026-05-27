@@ -24,7 +24,7 @@ const NAV_ITEMS = [
     href: '/library',
     Icon: Library,
     label: 'Library',
-    match: (p: string) => p === '/library' || p.startsWith('/library/') || p.startsWith('/lists/'),
+    match: (p: string) => p === '/library' || p.startsWith('/library/') || p.startsWith('/collections/'),
   },
   {
     href: '/friends',

@@ -33,7 +33,7 @@ export default function ProfilePage() {
   const supabase = createClient();
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  const [tab, setTab] = useState<'shelves' | 'posts' | 'lists' | 'stats'>('shelves');
+  const [tab, setTab] = useState<'shelves' | 'collections' | 'journal' | 'posts' | 'stats'>('shelves');
   const [uploadingCover, setUploadingCover] = useState(false);
 
   const myPosts = posts.filter((p) => p.userId === currentUser.id);
@@ -123,20 +123,31 @@ export default function ProfilePage() {
 
       {/* Tabs */}
       <div className="flex border-b border-gray-100 dark:border-gray-800 mb-6">
-        {(['shelves', 'lists', 'posts', 'stats'] as const).map((t) => (
+        {([
+          { key: 'shelves',     label: 'Shelves'     },
+          { key: 'collections', label: 'Collections' },
+          { key: 'journal',     label: 'Journal'     },
+          { key: 'posts',       label: 'Posts'       },
+          { key: 'stats',       label: 'Stats'       },
+        ] as const).map(({ key, label }) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`pb-3 px-5 text-sm font-semibold transition-colors capitalize ${
-              tab === t
+            key={key}
+            onClick={() => setTab(key)}
+            className={`pb-3 px-5 text-sm font-semibold transition-colors whitespace-nowrap ${
+              tab === key
                 ? 'border-b-2 border-amber-500 text-amber-500'
                 : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
-            {t}
-            {t === 'lists' && myLists.length > 0 && (
+            {label}
+            {key === 'collections' && myLists.length > 0 && (
               <span className="ml-1.5 text-xs bg-amber-100 text-amber-500 px-1.5 py-0.5 rounded-full">
                 {myLists.length}
+              </span>
+            )}
+            {key === 'journal' && myJournals.length > 0 && (
+              <span className="ml-1.5 text-xs bg-amber-100 text-amber-500 px-1.5 py-0.5 rounded-full">
+                {myJournals.length}
               </span>
             )}
           </button>
@@ -199,12 +210,12 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {tab === 'lists' && (
+      {tab === 'collections' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500 dark:text-gray-400">{myLists.length} list{myLists.length !== 1 ? 's' : ''}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{myLists.length} collection{myLists.length !== 1 ? 's' : ''}</p>
             <Link
-              href="/lists/create"
+              href="/collections/create"
               className="flex items-center gap-1.5 text-sm px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors"
             >
               <Plus className="w-4 h-4" /> New collection
@@ -219,7 +230,7 @@ export default function ProfilePage() {
             </div>
           ) : (
             myLists.map((list) => (
-              <Link key={list.id} href={`/lists/${list.id}`} className="block group">
+              <Link key={list.id} href={`/collections/${list.id}`} className="block group">
                 <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow p-5">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex-1 min-w-0">
@@ -258,6 +269,68 @@ export default function ProfilePage() {
                 </div>
               </Link>
             ))
+          )}
+        </div>
+      )}
+
+      {tab === 'journal' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500 dark:text-gray-400">{myJournals.length} entr{myJournals.length !== 1 ? 'ies' : 'y'}</p>
+            <Link
+              href="/notes"
+              className="flex items-center gap-1.5 text-sm px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors"
+            >
+              <NotebookText className="w-4 h-4" /> Open Journal
+            </Link>
+          </div>
+
+          {myJournals.length === 0 ? (
+            <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+              <NotebookText className="w-10 h-10 mx-auto mb-3 text-gray-200 dark:text-gray-700" />
+              <p className="text-gray-500 dark:text-gray-400 font-medium">No journal entries yet</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 mb-4">Capture your thoughts, lessons, and insights from the books you read</p>
+              <Link href="/notes" className="inline-flex items-center gap-2 text-sm px-5 py-2.5 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors">
+                <NotebookText className="w-4 h-4" /> Start journaling
+              </Link>
+            </div>
+          ) : (
+            myJournals
+              .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+              .map((journal) => (
+                <Link key={journal.id} href={`/books/${journal.bookId}`} className="block group">
+                  <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow p-5 flex gap-4">
+                    <div className="flex-shrink-0 w-12 h-18 rounded-xl overflow-hidden shadow-md">
+                      {journal.book.coverUrl ? (
+                        <img src={journal.book.coverUrl} alt={journal.book.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-amber-100 dark:bg-amber-900/20" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mb-0.5 truncate">{journal.book.title}</p>
+                      <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-snug group-hover:text-amber-500 transition-colors">
+                        {journal.title || 'Journal Entry'}
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5 line-clamp-2 leading-relaxed">{journal.content}</p>
+                      <div className="flex items-center gap-3 mt-2">
+                        {journal.lessons.length > 0 && (
+                          <span className="text-xs text-amber-500 font-medium">
+                            {journal.lessons.length} key lesson{journal.lessons.length !== 1 ? 's' : ''}
+                          </span>
+                        )}
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                          journal.isPublic
+                            ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                        }`}>
+                          {journal.isPublic ? 'Public' : 'Private'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))
           )}
         </div>
       )}

@@ -73,7 +73,7 @@ export default function LibraryPage() {
         )}
         {activeTab === 'collections' && (
           <Link
-            href="/lists/create"
+            href="/collections/create"
             className="flex items-center gap-2 text-sm px-5 py-2.5 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" /> New collection
@@ -177,7 +177,7 @@ export default function LibraryPage() {
               </p>
               {collectionFilter === 'mine' && (
                 <Link
-                  href="/lists/create"
+                  href="/collections/create"
                   className="inline-flex items-center gap-2 text-sm px-5 py-2.5 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors"
                 >
                   <Plus className="w-4 h-4" /> Create a collection
@@ -194,7 +194,7 @@ export default function LibraryPage() {
                 return (
                   <div key={col.id} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow p-5">
                     <div className="flex items-start justify-between gap-4 mb-3">
-                      <Link href={`/lists/${col.id}`} className="flex-1 min-w-0 group">
+                      <Link href={`/collections/${col.id}`} className="flex-1 min-w-0 group">
                         <h2 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-amber-500 transition-colors leading-snug">
                           {col.title}
                         </h2>
@@ -226,7 +226,7 @@ export default function LibraryPage() {
                           </button>
                         )}
                         {isOwner && (
-                          <Link href={`/lists/${col.id}`} className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium">
+                          <Link href={`/collections/${col.id}`} className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium">
                             Edit
                           </Link>
                         )}

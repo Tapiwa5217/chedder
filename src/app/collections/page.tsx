@@ -29,7 +29,7 @@ export default function ListsPage() {
           <p className="text-gray-400 dark:text-gray-500 text-sm">Curated book collections from the community</p>
         </div>
         <Link
-          href="/lists/create"
+          href="/collections/create"
           className="flex items-center gap-2 text-sm px-5 py-2.5 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors shadow-sm"
         >
           <Plus className="w-4 h-4" /> New collection
@@ -39,7 +39,7 @@ export default function ListsPage() {
       {/* Filter tabs */}
       <div className="flex gap-2 mb-6">
         {([
-          { id: 'all' as Filter, label: 'All lists' },
+          { id: 'all' as Filter, label: 'All collections' },
           { id: 'mine' as Filter, label: `My collections (${myLists.length})` },
           { id: 'following' as Filter, label: `Following (${followingLists.length})` },
         ]).map(({ id, label }) => (
@@ -61,13 +61,13 @@ export default function ListsPage() {
         <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
           <BookOpen className="w-10 h-10 mx-auto mb-3 text-gray-200 dark:text-gray-700" />
           <p className="text-gray-500 dark:text-gray-400 font-medium">
-            {filter === 'mine' ? 'No collections yet' : filter === 'following' ? "You're not following any lists" : 'No collections to show'}
+            {filter === 'mine' ? 'No collections yet' : filter === 'following' ? "You're not following any collections" : 'No collections to show'}
           </p>
           <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 mb-4">
             {filter === 'mine' ? 'Create your first curated book collection' : 'Discover lists from the community and follow ones you like'}
           </p>
           {filter === 'mine' && (
-            <Link href="/lists/create" className="inline-flex items-center gap-2 text-sm px-5 py-2.5 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors">
+            <Link href="/collections/create" className="inline-flex items-center gap-2 text-sm px-5 py-2.5 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors">
               <Plus className="w-4 h-4" /> Create a collection
             </Link>
           )}
@@ -78,7 +78,7 @@ export default function ListsPage() {
             const owner = getUserById(list.userId);
             const isOwner = list.userId === currentUser.id;
             return (
-              <Link key={list.id} href={`/lists/${list.id}`} className="block group">
+              <Link key={list.id} href={`/collections/${list.id}`} className="block group">
                 <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow p-5">
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <div className="flex-1 min-w-0">
@@ -122,7 +122,7 @@ export default function ListsPage() {
                         {owner.name}
                       </span>
                     )}
-                    {isOwner && <span className="text-amber-500 font-medium">Your list</span>}
+                    {isOwner && <span className="text-amber-500 font-medium">Your collection</span>}
                     <span>{list.books.length} book{list.books.length !== 1 ? 's' : ''}</span>
                     {list.followers.length > 0 && (
                       <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {list.followers.length} following</span>
