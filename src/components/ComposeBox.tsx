@@ -46,6 +46,7 @@ export default function ComposeBox() {
   const [imagePreview, setImagePreview] = useState('');   // local blob URL for preview
   const [uploadedImageUrl, setUploadedImageUrl] = useState(''); // Supabase public URL
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -83,6 +84,7 @@ export default function ComposeBox() {
     const localUrl = URL.createObjectURL(file);
     setImagePreview(localUrl);
     setUploadingImage(true);
+    setUploadError('');
 
     try {
       const body = new FormData();
@@ -90,12 +92,12 @@ export default function ComposeBox() {
       body.append('userId', currentUser.id);
 
       const res = await fetch('/api/upload', { method: 'POST', body });
-      if (!res.ok) throw new Error(await res.text());
-      const { url } = await res.json();
-      setUploadedImageUrl(url);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? res.statusText);
+      setUploadedImageUrl(json.url);
     } catch (err) {
-      console.error('Image upload failed:', err);
-      // Clear the preview so a broken blob URL isn't saved to the post
+      const msg = err instanceof Error ? err.message : 'Upload failed';
+      setUploadError(msg);
       setImagePreview('');
     } finally {
       setUploadingImage(false);
@@ -112,7 +114,7 @@ export default function ComposeBox() {
 
     // Build encoded content
     let finalContent = content.trim();
-    const imageUrl = uploadedImageUrl || imagePreview; // fall back to local URL if upload failed
+    const imageUrl = uploadedImageUrl; // only use the persisted Supabase URL, never a blob
     if (imageUrl) finalContent += `\n[img]${imageUrl}`;
     if (selectedBook && bookDisplay === 'big') finalContent += '\n[bigcover]';
 
@@ -295,6 +297,13 @@ export default function ComposeBox() {
               >
                 <X className="w-4 h-4" />
               </button>
+            </div>
+          )}
+
+          {/* Upload error */}
+          {uploadError && (
+            <div className="mb-3 px-3 py-2 bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-800 rounded-xl text-xs text-red-600 dark:text-red-400">
+              Photo upload failed: {uploadError}
             </div>
           )}
 

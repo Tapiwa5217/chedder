@@ -5,12 +5,17 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(req: NextRequest) {
-  // Create inside the handler so env vars are read at request time, not build time
-  const adminSupabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } }
-  );
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error('Missing env vars — NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set');
+    return NextResponse.json({ error: 'Server misconfiguration: missing env vars' }, { status: 500 });
+  }
+
+  const adminSupabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 
   try {
     const formData = await req.formData();
@@ -22,33 +27,36 @@ export async function POST(req: NextRequest) {
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: 'File type not allowed' }, { status: 400 });
+      return NextResponse.json({ error: `File type not allowed: ${file.type}` }, { status: 400 });
     }
 
     if (file.size > MAX_BYTES) {
       return NextResponse.json({ error: 'File too large (max 10 MB)' }, { status: 400 });
     }
 
-    const ext = file.name.split('.').pop() ?? 'jpg';
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
     const path = `posts/${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
+    // Use Uint8Array — works in both Node.js and Edge runtimes
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const uint8 = new Uint8Array(bytes);
 
     const { error: uploadError } = await adminSupabase.storage
       .from('post-images')
-      .upload(path, buffer, { contentType: file.type, upsert: false });
+      .upload(path, uint8, { contentType: file.type, upsert: false });
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError);
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
+      console.error('Supabase storage upload error:', uploadError);
+      return NextResponse.json({ error: `Storage error: ${uploadError.message}` }, { status: 500 });
     }
 
     const { data } = adminSupabase.storage.from('post-images').getPublicUrl(path);
+    console.log('Upload success:', data.publicUrl);
 
     return NextResponse.json({ url: data.publicUrl });
   } catch (err) {
-    console.error('Upload route error:', err);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('Upload route unexpected error:', msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
