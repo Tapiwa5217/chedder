@@ -112,7 +112,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [journals, setJournals] = useState<BookJournal[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [conversationReadAt, setConversationReadAt] = useState<Record<string, string>>({});
+  const [conversationReadAt, setConversationReadAt] = useState<Record<string, string>>(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const stored = localStorage.getItem('conversationReadAt');
+      return stored ? JSON.parse(stored) : {};
+    } catch { return {}; }
+  });
   const [bookLists, setBookLists] = useState<BookList[]>([]);
   const [groups, setGroups] = useState<BookGroup[]>([]);
 
@@ -707,7 +713,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     conversations.find((c) => c.participantIds.includes(currentUser.id) && c.participantIds.includes(userId));
 
   const markConversationRead = useCallback((conversationId: string) => {
-    setConversationReadAt((prev) => ({ ...prev, [conversationId]: new Date().toISOString() }));
+    setConversationReadAt((prev) => {
+      const next = { ...prev, [conversationId]: new Date().toISOString() };
+      try { localStorage.setItem('conversationReadAt', JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
   }, []);
 
   const getUnreadCount = useCallback(() =>
