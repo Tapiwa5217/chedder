@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import ChatWidget from './ChatWidget';
@@ -31,6 +32,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <>
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+      <footer className="max-w-7xl mx-auto px-4 pb-8 pt-2 flex items-center gap-4">
+        <Link href="/privacy" className="text-xs text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400 transition-colors">
+          Privacy Policy
+        </Link>
+        <span className="text-xs text-gray-300 dark:text-gray-700">·</span>
+        <Link href="/terms" className="text-xs text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400 transition-colors">
+          Terms &amp; Conditions
+        </Link>
+        <span className="text-xs text-gray-300 dark:text-gray-700">·</span>
+        <span className="text-xs text-gray-300 dark:text-gray-700">© 2026 Chedder</span>
+      </footer>
       <ChatWidget />
     </>
   );
