@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -11,8 +11,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [readerCount, setReaderCount] = useState<number | null>(null);
+  const [reviewCount, setReviewCount] = useState<number | null>(null);
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    supabase.from('profiles').select('id', { count: 'exact', head: true })
+      .then(({ count }) => { if (count !== null) setReaderCount(count); });
+    supabase.from('posts').select('id', { count: 'exact', head: true }).eq('type', 'review')
+      .then(({ count }) => { if (count !== null) setReviewCount(count); });
+  }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,17 +177,17 @@ export default function LoginPage() {
           <div className="mt-10 flex justify-center gap-6 text-sm text-amber-900/60">
             <div className="text-center">
               <div className="text-2xl font-black text-amber-950">2.4M+</div>
-              <div>Books to explore</div>
+              <div>Books</div>
             </div>
             <div className="w-px bg-amber-900/20" />
             <div className="text-center">
-              <div className="text-2xl font-black text-amber-950">100%</div>
-              <div>Free, forever</div>
+              <div className="text-2xl font-black text-amber-950">{readerCount ?? '—'}</div>
+              <div>Readers</div>
             </div>
             <div className="w-px bg-amber-900/20" />
             <div className="text-center">
-              <div className="text-2xl font-black text-amber-950">0</div>
-              <div>Ads. Ever.</div>
+              <div className="text-2xl font-black text-amber-950">{reviewCount ?? '—'}</div>
+              <div>Reviews</div>
             </div>
           </div>
         </div>

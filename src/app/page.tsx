@@ -6,7 +6,7 @@ import { mockBooks } from '@/lib/mockData';
 import BookCarousel from '@/components/BookCarousel';
 
 export default function LandingPage() {
-  const { shelf, posts, currentUser } = useApp();
+  const { shelf, posts, currentUser, users } = useApp();
 
   const readingBooks = shelf.filter((e) => e.shelf === 'reading').map((e) => e.book);
   const wishlistBooks = shelf.filter((e) => e.shelf === 'wishlist').map((e) => e.book);
@@ -134,8 +134,8 @@ export default function LandingPage() {
       <div className="mt-4 grid grid-cols-3 gap-4 mb-2">
         {[
           { value: '2.4M+', label: 'Books to choose from' },
-          { value: '100%', label: 'Free, forever' },
-          { value: '0', label: 'Ads. Ever.' },
+          { value: String(users.length), label: 'Readers' },
+          { value: String(posts.filter((p) => p.type === 'review').length), label: 'Reviews Shared' },
         ].map((stat) => (
           <div
             key={stat.label}
