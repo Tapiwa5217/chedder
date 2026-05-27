@@ -112,10 +112,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [journals, setJournals] = useState<BookJournal[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [conversationReadAt, setConversationReadAt] = useState<Record<string, string>>(() => {
+  // Maps conversationId → ID of the last message the user has seen
+  const [lastSeenMsgId, setLastSeenMsgId] = useState<Record<string, string>>(() => {
     if (typeof window === 'undefined') return {};
     try {
-      const stored = localStorage.getItem('conversationReadAt');
+      const stored = localStorage.getItem('lastSeenMsgId');
       return stored ? JSON.parse(stored) : {};
     } catch { return {}; }
   });
@@ -713,23 +714,34 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     conversations.find((c) => c.participantIds.includes(currentUser.id) && c.participantIds.includes(userId));
 
   const markConversationRead = useCallback((conversationId: string) => {
-    setConversationReadAt((prev) => {
-      const next = { ...prev, [conversationId]: new Date().toISOString() };
-      try { localStorage.setItem('conversationReadAt', JSON.stringify(next)); } catch { /* ignore */ }
+    setLastSeenMsgId((prev) => {
+      // Find the last message in this conversation and store its ID
+      const conv = conversations.find((c) => c.id === conversationId);
+      const lastMsg = conv?.messages.at(-1);
+      if (!lastMsg) return prev;
+      const next = { ...prev, [conversationId]: lastMsg.id };
+      try { localStorage.setItem('lastSeenMsgId', JSON.stringify(next)); } catch { /* ignore */ }
       return next;
     });
-  }, []);
+  }, [conversations]);
 
   const getUnreadCount = useCallback(() =>
     conversations.reduce((acc, c) => {
-      const lastRead = conversationReadAt[c.id];
-      const hasUnread = c.messages.some(
-        (m) => m.senderId !== currentUser.id &&
-          (!lastRead || new Date(m.createdAt) > new Date(lastRead))
-      );
+      const seenId = lastSeenMsgId[c.id];
+      // Never opened → unread if there's any message from someone else
+      if (!seenId) {
+        const hasUnread = c.messages.some((m) => m.senderId !== currentUser.id);
+        return acc + (hasUnread ? 1 : 0);
+      }
+      // Find where the last-seen message sits in the array
+      const seenIdx = c.messages.findIndex((m) => m.id === seenId);
+      // Any non-self message that arrives after that index is unread
+      const hasUnread = c.messages
+        .slice(seenIdx + 1)
+        .some((m) => m.senderId !== currentUser.id);
       return acc + (hasUnread ? 1 : 0);
     }, 0),
-  [conversations, conversationReadAt, currentUser.id]);
+  [conversations, lastSeenMsgId, currentUser.id]);
 
   return (
     <AppContext.Provider
