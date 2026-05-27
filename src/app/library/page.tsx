@@ -8,7 +8,7 @@ import Avatar from '@/components/Avatar';
 import StarRating from '@/components/StarRating';
 import {
   BookOpen, Bookmark, CheckCircle2, Library, LayoutGrid, LayoutList,
-  Plus, Globe, Lock, Users, type LucideIcon,
+  Plus, Globe, Lock, Users, NotebookText, type LucideIcon,
 } from 'lucide-react';
 
 const SHELF_TABS: { key: ShelfType; label: string; Icon: LucideIcon; color: string }[] = [
@@ -17,10 +17,10 @@ const SHELF_TABS: { key: ShelfType; label: string; Icon: LucideIcon; color: stri
   { key: 'read',    label: 'Read',     Icon: CheckCircle2, color: 'text-emerald-600' },
 ];
 
-type ActiveTab = ShelfType | 'collections';
+type ActiveTab = ShelfType | 'collections' | 'journal';
 
 export default function LibraryPage() {
-  const { shelf, bookLists, currentUser, getUserById, updateEntry, followList, unfollowList } = useApp();
+  const { shelf, bookLists, journals, currentUser, getUserById, updateEntry, followList, unfollowList } = useApp();
   const [activeTab, setActiveTab] = useState<ActiveTab>('reading');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [reviewText, setReviewText] = useState('');
@@ -33,7 +33,11 @@ export default function LibraryPage() {
     wishlist: shelf.filter((e) => e.shelf === 'wishlist').length,
   };
 
-  const tabBooks = activeTab !== 'collections' ? shelf.filter((e) => e.shelf === activeTab) : [];
+  const isShelfTab = activeTab !== 'collections' && activeTab !== 'journal';
+  const tabBooks = isShelfTab ? shelf.filter((e) => e.shelf === activeTab) : [];
+  const myJournals = journals
+    .filter((j) => j.userId === currentUser.id)
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   const myCollections = bookLists.filter((l) => l.userId === currentUser.id);
   const followingCollections = bookLists.filter(
@@ -51,7 +55,7 @@ export default function LibraryPage() {
             {shelf.length} books · {counts.read} read · {counts.reading} reading now
           </p>
         </div>
-        {activeTab !== 'collections' && (
+        {isShelfTab && (
           <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-1 shadow-sm">
             <button
               onClick={() => setView('grid')}
@@ -82,7 +86,7 @@ export default function LibraryPage() {
       </div>
 
       {/* Stat cards — shelf only */}
-      {activeTab !== 'collections' && (
+      {isShelfTab && (
         <div className="grid grid-cols-3 gap-4 mb-8">
           {SHELF_TABS.map((tab) => (
             <button
@@ -136,6 +140,24 @@ export default function LibraryPage() {
           {myCollections.length > 0 && (
             <span className="ml-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded-full">
               {myCollections.length}
+            </span>
+          )}
+        </button>
+
+        {/* Journal tab */}
+        <button
+          onClick={() => setActiveTab('journal')}
+          className={`pb-3 px-5 text-sm font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+            activeTab === 'journal'
+              ? 'border-b-2 border-amber-500 text-amber-500'
+              : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          <NotebookText className="w-4 h-4" />
+          Journal
+          {myJournals.length > 0 && (
+            <span className="ml-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded-full">
+              {myJournals.length}
             </span>
           )}
         </button>
@@ -268,8 +290,78 @@ export default function LibraryPage() {
         </div>
       )}
 
+      {/* ── Journal tab content ─────────────────────────────── */}
+      {activeTab === 'journal' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {myJournals.length} entr{myJournals.length !== 1 ? 'ies' : 'y'}
+            </p>
+            <Link
+              href="/notes"
+              className="flex items-center gap-1.5 text-sm px-4 py-2 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors"
+            >
+              <NotebookText className="w-4 h-4" /> Open Journal
+            </Link>
+          </div>
+
+          {myJournals.length === 0 ? (
+            <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+              <NotebookText className="w-10 h-10 mx-auto mb-3 text-gray-200 dark:text-gray-700" />
+              <p className="text-gray-500 dark:text-gray-400 font-medium">No journal entries yet</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 mb-4">
+                Capture thoughts, lessons, and insights from the books you read
+              </p>
+              <Link
+                href="/notes"
+                className="inline-flex items-center gap-2 text-sm px-5 py-2.5 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors"
+              >
+                <NotebookText className="w-4 h-4" /> Start journaling
+              </Link>
+            </div>
+          ) : (
+            myJournals.map((journal) => (
+              <Link key={journal.id} href={`/books/${journal.bookId}`} className="block group">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow p-5 flex gap-4">
+                  <div className="flex-shrink-0 w-12 rounded-xl overflow-hidden shadow-md" style={{ height: '72px' }}>
+                    {journal.book.coverUrl ? (
+                      <img src={journal.book.coverUrl} alt={journal.book.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-amber-100 dark:bg-amber-900/20" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-0.5 truncate">{journal.book.title}</p>
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm leading-snug group-hover:text-amber-500 transition-colors">
+                      {journal.title || 'Journal Entry'}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+                      {journal.content}
+                    </p>
+                    <div className="flex items-center gap-3 mt-2">
+                      {journal.lessons.length > 0 && (
+                        <span className="text-xs text-amber-500 font-medium">
+                          {journal.lessons.length} key lesson{journal.lessons.length !== 1 ? 's' : ''}
+                        </span>
+                      )}
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        journal.isPublic
+                          ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                      }`}>
+                        {journal.isPublic ? 'Public' : 'Private'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+      )}
+
       {/* ── Shelf tab content ───────────────────────────────── */}
-      {activeTab !== 'collections' && (
+      {isShelfTab && (
         <>
           {tabBooks.length === 0 ? (
             <div className="text-center py-20 text-gray-300 dark:text-gray-600">
