@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Service-role client — server only, never sent to the browser.
-// Bypasses RLS so no storage bucket policies are needed.
-const adminSupabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false, autoRefreshToken: false } }
-);
-
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(req: NextRequest) {
+  // Create inside the handler so env vars are read at request time, not build time
+  const adminSupabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } }
+  );
+
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
