@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import ChatWidget from './ChatWidget';
+import MobileBottomNav from './MobileBottomNav';
 import { useApp } from '@/lib/context';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -31,8 +32,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
-      <footer className="max-w-7xl mx-auto px-4 pb-8 pt-2 flex items-center gap-4">
+      <main className="max-w-7xl mx-auto px-4 py-6 pb-24 md:pb-6">{children}</main>
+      <footer className="hidden md:flex max-w-7xl mx-auto px-4 pb-8 pt-2 items-center gap-4">
         <Link href="/privacy" className="text-xs text-gray-400 dark:text-gray-600 hover:text-amber-500 dark:hover:text-amber-400 transition-colors">
           Privacy Policy
         </Link>
@@ -43,6 +44,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <span className="text-xs text-gray-300 dark:text-gray-700">·</span>
         <span className="text-xs text-gray-300 dark:text-gray-700">© 2026 Chedder</span>
       </footer>
+      <MobileBottomNav />
       <ChatWidget />
     </>
   );

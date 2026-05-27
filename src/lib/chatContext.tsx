@@ -6,16 +6,27 @@ type ChatContextType = {
   openChatIds: string[];
   openChat: (userId: string) => void;
   closeChat: (userId: string) => void;
+  /** Mobile full-screen messages overlay */
+  mobileOpen: boolean;
+  setMobileOpen: (open: boolean) => void;
+  activeMobileChatId: string | null;
+  setActiveMobileChatId: (id: string | null) => void;
 };
 
 const ChatContext = createContext<ChatContextType>({
   openChatIds: [],
   openChat: () => {},
   closeChat: () => {},
+  mobileOpen: false,
+  setMobileOpen: () => {},
+  activeMobileChatId: null,
+  setActiveMobileChatId: () => {},
 });
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [openChatIds, setOpenChatIds] = useState<string[]>([]);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeMobileChatId, setActiveMobileChatId] = useState<string | null>(null);
 
   const openChat = (userId: string) => {
     setOpenChatIds((prev) => {
@@ -29,7 +40,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ChatContext.Provider value={{ openChatIds, openChat, closeChat }}>
+    <ChatContext.Provider value={{
+      openChatIds, openChat, closeChat,
+      mobileOpen, setMobileOpen,
+      activeMobileChatId, setActiveMobileChatId,
+    }}>
       {children}
     </ChatContext.Provider>
   );
