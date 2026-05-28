@@ -53,7 +53,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const { users, currentUser, posts, journals, isFollowing, followUser, unfollowUser } = useApp();
   const { openChat } = useChatContext();
   const supabase = createClient();
-  const [tab, setTab] = useState<'shelves' | 'posts' | 'journal'>('shelves');
+  const [tab, setTab] = useState<'shelves' | 'posts' | 'journal'>('posts');
   const [userShelf, setUserShelf] = useState<ShelfEntry[]>([]);
 
   const user = users.find((u) => u.username === username);
@@ -175,20 +175,27 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — official accounts only show Posts */}
       <div className="flex border-b border-gray-100 dark:border-gray-800 mb-6 bg-white dark:bg-gray-900 rounded-t-2xl px-2">
-        {(['shelves', 'posts', 'journal'] as const).map((t) => (
+        {(user.isOfficial
+          ? [{ key: 'posts' as const, label: 'Posts' }]
+          : [
+              { key: 'shelves' as const, label: 'Shelves' },
+              { key: 'posts'   as const, label: 'Posts'   },
+              { key: 'journal' as const, label: 'Journal' },
+            ]
+        ).map(({ key, label }) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`pb-3 pt-3 px-5 text-sm font-semibold transition-colors capitalize ${
-              tab === t
+            key={key}
+            onClick={() => setTab(key)}
+            className={`pb-3 pt-3 px-5 text-sm font-semibold transition-colors ${
+              tab === key
                 ? 'border-b-2 border-amber-500 text-amber-500'
                 : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
-            {t}
-            {t === 'journal' && userJournals.length > 0 && (
+            {label}
+            {key === 'journal' && userJournals.length > 0 && (
               <span className="ml-1.5 text-xs bg-amber-100 text-amber-500 px-1.5 py-0.5 rounded-full">
                 {userJournals.length}
               </span>

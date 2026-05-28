@@ -34,7 +34,9 @@ export default function ProfilePage() {
   const supabase = createClient();
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  const [tab, setTab] = useState<'shelves' | 'collections' | 'journal' | 'posts' | 'stats'>('shelves');
+  const [tab, setTab] = useState<'shelves' | 'collections' | 'journal' | 'posts' | 'stats'>(
+    currentUser.isOfficial ? 'posts' : 'shelves'
+  );
   const [uploadingCover, setUploadingCover] = useState(false);
 
   const myPosts = posts.filter((p) => p.userId === currentUser.id);
@@ -127,13 +129,16 @@ export default function ProfilePage() {
 
       {/* Tabs */}
       <div className="flex border-b border-gray-100 dark:border-gray-800 mb-6">
-        {([
-          { key: 'shelves',     label: 'Shelves'     },
-          { key: 'collections', label: 'Collections' },
-          { key: 'journal',     label: 'Journal'     },
-          { key: 'posts',       label: 'Posts'       },
-          { key: 'stats',       label: 'Stats'       },
-        ] as const).map(({ key, label }) => (
+        {(currentUser.isOfficial
+          ? [{ key: 'posts' as const, label: 'Posts' }]
+          : [
+              { key: 'shelves'     as const, label: 'Shelves'     },
+              { key: 'collections' as const, label: 'Collections' },
+              { key: 'journal'     as const, label: 'Journal'     },
+              { key: 'posts'       as const, label: 'Posts'       },
+              { key: 'stats'       as const, label: 'Stats'       },
+            ]
+        ).map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
