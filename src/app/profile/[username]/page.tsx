@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useApp } from '@/lib/context';
 import { createClient } from '@/lib/supabase/client';
 import Avatar from '@/components/Avatar';
+import OfficialBadge from '@/components/OfficialBadge';
 import BookCard from '@/components/BookCard';
 import PostCard from '@/components/PostCard';
 import StarRating from '@/components/StarRating';
@@ -145,7 +146,10 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
             </div>
           </div>
 
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{user.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{user.name}</h1>
+            {user.isOfficial && <OfficialBadge size="md" />}
+          </div>
           <p className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</p>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed max-w-lg">{user.bio}</p>
 

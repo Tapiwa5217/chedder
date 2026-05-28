@@ -29,6 +29,7 @@ export type User = {
   avatarUrl?: string;
   coverUrl?: string;
   journalPublicDefault?: boolean;
+  isOfficial?: boolean;
   following: string[];
   followers: string[];
 };

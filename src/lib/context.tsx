@@ -94,6 +94,7 @@ function mapProfile(p: Record<string, unknown>): User {
     avatarUrl: (p.avatar_url as string) ?? undefined,
     coverUrl: (p.cover_url as string) ?? undefined,
     journalPublicDefault: (p.journal_public_default as boolean) ?? false,
+    isOfficial: (p.is_official as boolean) ?? false,
     following: [],
     followers: [],
   };

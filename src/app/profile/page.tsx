@@ -12,6 +12,7 @@ import {
   BookOpen, CheckCircle2, Bookmark, Library, NotebookText, PenLine,
   Camera, Plus, Globe, Lock, Users,
 } from 'lucide-react';
+import OfficialBadge from '@/components/OfficialBadge';
 
 function coverGradient(seed: string): string {
   const gradients = [
@@ -99,7 +100,10 @@ export default function ProfilePage() {
             </Link>
           </div>
 
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{currentUser.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{currentUser.name}</h1>
+            {currentUser.isOfficial && <OfficialBadge size="md" />}
+          </div>
           <p className="text-gray-400 dark:text-gray-500 text-sm mb-3">@{currentUser.username}</p>
 
           {/* Stats row */}

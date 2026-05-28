@@ -6,6 +6,7 @@ import { Post, Comment } from '@/lib/types';
 import { useApp } from '@/lib/context';
 import { useChatContext } from '@/lib/chatContext';
 import Avatar from './Avatar';
+import OfficialBadge from './OfficialBadge';
 import StarRating from './StarRating';
 import EmojiPicker from './EmojiPicker';
 import {
@@ -119,9 +120,12 @@ function CommentRow({
         )}
         <div className="flex-1 min-w-0">
           <div className="bg-gray-50 dark:bg-gray-800/60 rounded-2xl px-3.5 py-2.5">
-            <p className="text-xs font-bold text-gray-900 dark:text-gray-100 mb-0.5">
-              {author?.name ?? 'Unknown'}
-            </p>
+            <span className="inline-flex items-center gap-1 mb-0.5">
+              <p className="text-xs font-bold text-gray-900 dark:text-gray-100">
+                {author?.name ?? 'Unknown'}
+              </p>
+              {author?.isOfficial && <OfficialBadge />}
+            </span>
             <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
               {comment.content}
             </p>
@@ -315,12 +319,15 @@ export default function PostCard({ post }: { post: Post }) {
               </Link>
             )}
             <div>
-              <Link
-                href={author ? (author.id === currentUser.id ? '/profile' : `/profile/${author.username}`) : '#'}
-                className="font-bold text-gray-900 dark:text-gray-100 text-sm hover:text-amber-500 transition-colors"
-              >
-                {author?.name}
-              </Link>
+              <span className="inline-flex items-center gap-1">
+                <Link
+                  href={author ? (author.id === currentUser.id ? '/profile' : `/profile/${author.username}`) : '#'}
+                  className="font-bold text-gray-900 dark:text-gray-100 text-sm hover:text-amber-500 transition-colors"
+                >
+                  {author?.name}
+                </Link>
+                {author?.isOfficial && <OfficialBadge />}
+              </span>
               {post.book ? (
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                   {POST_TYPE_LABELS[post.type]}{' '}
